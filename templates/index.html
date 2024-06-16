@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autobiography Project</title>
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Upload Your Audio</h1>
+        <form id="upload-form">
+            <input type="file" id="audio-file" accept="audio/*" required>
+            <button type="submit">Upload</button>
+        </form>
+        <div id="loading-spinner"></div>
+        <h2>Transcript:</h2>
+        <pre id="transcript"></pre>
+        <h2>Guideline:</h2>
+        <pre id="guideline"></pre>
+    </div>
+
+    <script>
+        document.getElementById('upload-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const fileInput = document.getElementById('audio-file');
+            const formData = new FormData();
+            formData.append('audio', fileInput.files[0]);
+
+            // Show loading spinner
+            document.getElementById('loading-spinner').style.display = 'block';
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+
+                // Hide loading spinner
+                document.getElementById('loading-spinner').style.display = 'none';
+
+                if (response.ok) {
+                    document.getElementById('transcript').innerText = result.transcript;
+                    document.getElementById('guideline').innerText = result.guideline;
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while uploading the audio file.');
+
+                // Hide loading spinner
+                document.getElementById('loading-spinner').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
